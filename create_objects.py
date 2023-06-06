@@ -24,7 +24,7 @@ def create_sigil(name, description):
     session.commit()
 
 
-def create_card(name, cost, cost_type, power, health, traits, image, tribe_names=None, sigil_names=None):
+def create_card(name, cost, cost_type, power, health, traits, grown_id, image, tribe_names=None, sigil_names=None):
     card = Card(
         name=name,
         cost=cost,
@@ -32,6 +32,7 @@ def create_card(name, cost, cost_type, power, health, traits, image, tribe_names
         power=power,
         health=health,
         traits=traits,
+        grown_id=grown_id,
         image=image
     )
 
@@ -78,9 +79,10 @@ create_sigil("Trinket Bearer", "When a card bearing this sigil is played, you wi
 create_sigil("Unkillable", "Unkillable is a sigil that causes a card to return to the owner's hand after death.")
 create_sigil("Waterborne", "Waterborne is a sigil that allows the creature to be submerged for the enemy's turn, causing the opposing creature to skip over it when attacking. The only consistent ways to kill a Waterborne creature are either by doing overkill damage to it before it spawns or by getting it to attack a creature with Sharp Quills.")
 create_sigil("Worthy Sacrifice", "Cards bearing this sigil count as 3 Blood rather than 1 Blood when sacrificed.")
+create_sigil("Airborne", "A card bearing this sigil will strike an opponent directly, even if there is a creature opposing it.")
 '''
 
-
+'''
 create_card(
     name='Amalgam',
     cost=2,
@@ -88,7 +90,22 @@ create_card(
     power=3,
     health=3,
     traits='Ant',
+    grown_id=None,
     image='images/Amalgam.webp',
     tribe_names=['Avian', 'Canine', 'Hooved', 'Reptile', 'Insect', 'Squirrel'],
     sigil_names=['Sigil 1', 'Sigil 2']
+)
+'''
+
+create_card(
+    name='Alpha',
+    cost=4,
+    cost_type='bones',
+    power=1,
+    health=2,
+    traits=None,
+    grown_id=None,
+    image='images/Alpha.webp',
+    tribe_names=['Canine', ],
+    sigil_names=['Leader', ]
 )
