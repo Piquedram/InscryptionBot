@@ -80,6 +80,7 @@ create_sigil("Unkillable", "Unkillable is a sigil that causes a card to return t
 create_sigil("Waterborne", "Waterborne is a sigil that allows the creature to be submerged for the enemy's turn, causing the opposing creature to skip over it when attacking. The only consistent ways to kill a Waterborne creature are either by doing overkill damage to it before it spawns or by getting it to attack a creature with Sharp Quills.")
 create_sigil("Worthy Sacrifice", "Cards bearing this sigil count as 3 Blood rather than 1 Blood when sacrificed.")
 create_sigil("Airborne", "A card bearing this sigil will strike an opponent directly, even if there is a creature opposing it.")
+create_sigil("Touch of Death", "When a card bearing this sigil damages another creature, that creature perishes.")
 '''
 
 '''
@@ -97,15 +98,16 @@ create_card(
 )
 '''
 
+
 create_card(
-    name='Alpha',
-    cost=4,
-    cost_type='bones',
-    power=1,
-    health=2,
+    name='Moose Buck',
+    cost=3,
+    cost_type='blood',
+    power=3,
+    health=7,
     traits=None,
     grown_id=None,
-    image='images/Alpha.webp',
-    tribe_names=['Canine', ],
-    sigil_names=['Leader', ]
+    image='images/Moose_Buck.webp',
+    tribe_names=['Hooved', ],
+    sigil_names=['Hefty', ]
 )
