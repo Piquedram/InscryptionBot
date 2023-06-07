@@ -1,10 +1,4 @@
-from sqlalchemy.orm import sessionmaker
-
 from models import *
-
-
-Session = sessionmaker(bind=engine)
-session = Session()
 
 
 def create_tribe(name):
@@ -49,7 +43,7 @@ def create_card(name, cost, cost_type, power, health, traits, grown_id, image, t
 
 
 '''
-tribes = ['Avian', 'Canine', 'Hooved', 'Reptile', 'Insect', 'Squirrel', 'Pelts']
+tribes = ['Avian', 'Canine', 'Hooved', 'Reptile', 'Insect', 'Squirrel']
 for t in tribes:
     create_tribe(t)
 
@@ -98,7 +92,7 @@ create_card(
 )
 '''
 
-
+'''
 create_card(
     name='Moose Buck',
     cost=3,
@@ -111,3 +105,4 @@ create_card(
     tribe_names=['Hooved', ],
     sigil_names=['Hefty', ]
 )
+'''

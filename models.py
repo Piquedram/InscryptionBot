@@ -1,10 +1,13 @@
 from sqlalchemy import create_engine, Column, String, Integer, ForeignKey, Table, Numeric
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import declarative_base, relationship, sessionmaker
 
 
 Base = declarative_base()
 
 engine = create_engine('sqlite:///main.db')
+
+Session = sessionmaker(bind=engine)
+session = Session()
 
 
 card_tribe = Table('cards_tribes', Base.metadata,
