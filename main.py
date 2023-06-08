@@ -9,6 +9,7 @@ from models import session, Tribe, Sigil, Card
 bot = telebot.TeleBot(token)
 
 
+cards = session.query(Card).all()
 tribes = session.query(Tribe).all()
 sigils = session.query(Sigil).all()
 
@@ -29,20 +30,20 @@ def handle_back(message):
     tribes_menu(message.chat.id)
 
 
-@bot.message_handler(func=lambda message: message.text in [card.name for card in session.query(Card).all()])
+@bot.message_handler(func=lambda message: message.text in [card.name for card in cards])
 def card_info(message):
     card_name = message.text
     send_card_info(message, card_name)
 
 
-@bot.message_handler(func=lambda message: message.text in [f'/{card.name}' for card in session.query(Card).all()])
-def card_info_slash(message):
+@bot.message_handler(func=lambda message: message.text in [f'/{card.name}' for card in cards])
+def slash_card_info(message):
     card_name = message.text[1:]
     send_card_info(message, card_name)
 
 
 def send_card_info(message, card_name):
-    card = session.query(Card).filter(Card.name == card_name).first()
+    card = next((card for card in cards if card.name == card_name), None)
     image_path = card.image
     with open(image_path, 'rb') as photo:
         bot.send_photo(chat_id=message.chat.id, photo=photo)
@@ -73,19 +74,34 @@ def send_card_info(message, card_name):
     bot.send_message(chat_id=message.chat.id, text=response)
 
 
-for tribe in tribes:
-    tribe_name = tribe.name
-    @bot.message_handler(func=lambda message, tribe=tribe_name: message.text == tribe)
-    def handle_back(message, tribe=tribe_name):
-        call_tribe(message.chat.id, tribe)
+@bot.message_handler(func=lambda message: message.text in [card.name for card in cards])
+def card_info(message):
+    card_name = message.text
+    send_card_info(message, card_name)
 
 
-for tribe in tribes:
-    tribe_name = tribe.name
-    @bot.message_handler(func=lambda message, tribe=tribe_name: message.text == f'/{tribe}')
-    def handle_back(message, tribe=tribe_name):
-        call_tribe(message.chat.id, tribe)
+@bot.message_handler(func=lambda message: message.text in [tribe.name for tribe in tribes])
+def tribe_cards(message):
+    tribe_name = message.text
+    send_tribe_cards(message, tribe_name)
 
+
+@bot.message_handler(func=lambda message: message.text in [f'/{tribe.name}' for tribe in tribes])
+def slash_tribe_cards(message):
+    tribe_name = message.text[1:]
+    send_tribe_cards(message, tribe_name)
+
+
+def send_tribe_cards(message, tribe_name):
+    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    buttons = []
+    tribe = next(tribe for tribe in tribes if tribe.name == tribe_name)
+    tribe_cards = session.query(Card).join(Card.tribes).filter(Tribe.id == tribe.id).all()
+    for card in tribe_cards:
+        buttons.append(types.KeyboardButton(text=f'{card.name}'))
+    buttons.append(types.KeyboardButton(text='Main menu'))
+    markup.add(*buttons)
+    bot.send_message(message.chat.id, 'Choose a card:', reply_markup=markup)
 
 '''
 @bot.message_handler(func=lambda message: message.text == 'Sigils')
@@ -109,18 +125,6 @@ def tribes_menu(chat_id):
     markup.add(*buttons)
     buttons.append(types.KeyboardButton(text='Main menu'))
     bot.send_message(chat_id, 'Choose a tribe:', reply_markup=markup)
-
-
-def call_tribe(chat_id, tribe_name):
-    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
-    tribe = session.query(Tribe).filter(Tribe.name == tribe_name).first()
-    cards = session.query(Card).join(Card.tribes).filter(Tribe.id == tribe.id).all()
-    buttons = []
-    for card in cards:
-        buttons.append(types.KeyboardButton(text=f'{card.name}'))
-    buttons.append(types.KeyboardButton(text='Main menu'))
-    markup.add(*buttons)
-    bot.send_message(chat_id, 'Choose a card:', reply_markup=markup)
 
 
 bot.polling()
