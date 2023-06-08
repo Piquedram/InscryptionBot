@@ -40,14 +40,27 @@ def card_info(message):
     if card.traits:
         response += f'Traits: {card.traits}\n'
     if card.tribes:
-        response += f"Tribes: {str([tribe.name for tribe in card.tribes])}\n"
+        if len(card.tribes) > 1:
+            response += f"Tribes: "
+            for tribe in card.tribes:
+                response += f"{tribe.name}, "
+            response = response[:-2]
+            response += '\n'
+        else:
+            response += f"Tribe: {card.tribes[0].name}\n"
     if card.sigils:
-        response += f"Sigils: {str([sigil.name for sigil in card.sigils])}"
+        if len(card.sigils) > 1:
+            response += f"Sigils: "
+            for sigil in card.sigils:
+                response += f"{sigil.name}, "
+            response = response[:-2]
+        else:
+            response += f'Sigil: {card.sigils[0].name}'
     bot.send_message(chat_id=message.chat.id, text=response)
 
 
-for t in tribes:
-    tribe_name = t.name
+for tribe in tribes:
+    tribe_name = tribe.name
     @bot.message_handler(func=lambda message, tribe=tribe_name: message.text == tribe)
     def handle_back(message, tribe=tribe_name):
         call_tribe(message.chat.id, tribe)
