@@ -32,22 +32,36 @@ def handle_back(message):
 @bot.message_handler(func=lambda message: message.text in [card.name for card in session.query(Card).all()])
 def card_info(message):
     card_name = message.text
+    send_card_info(message, card_name)
+
+
+@bot.message_handler(func=lambda message: message.text in [f'/{card.name}' for card in session.query(Card).all()])
+def card_info_slash(message):
+    card_name = message.text[1:]
+    send_card_info(message, card_name)
+
+
+def send_card_info(message, card_name):
     card = session.query(Card).filter(Card.name == card_name).first()
     image_path = card.image
     with open(image_path, 'rb') as photo:
         bot.send_photo(chat_id=message.chat.id, photo=photo)
-    response = f'Card: {card.name}\n'
+    response = f'Name: {card.name}\n'
+    if card.grown:
+        response += f'Grown: /{card.grown.name}\n'
+    if card.fledgling:
+        response += f'Fledgling: {card.fledgling[0].name}\n'
     if card.traits:
         response += f'Traits: {card.traits}\n'
     if card.tribes:
         if len(card.tribes) > 1:
             response += f"Tribes: "
             for tribe in card.tribes:
-                response += f"{tribe.name}, "
+                response += f"/{tribe.name}, "
             response = response[:-2]
             response += '\n'
         else:
-            response += f"Tribe: {card.tribes[0].name}\n"
+            response += f"Tribe: /{card.tribes[0].name}\n"
     if card.sigils:
         if len(card.sigils) > 1:
             response += f"Sigils: "
@@ -62,6 +76,13 @@ def card_info(message):
 for tribe in tribes:
     tribe_name = tribe.name
     @bot.message_handler(func=lambda message, tribe=tribe_name: message.text == tribe)
+    def handle_back(message, tribe=tribe_name):
+        call_tribe(message.chat.id, tribe)
+
+
+for tribe in tribes:
+    tribe_name = tribe.name
+    @bot.message_handler(func=lambda message, tribe=tribe_name: message.text == f'/{tribe}')
     def handle_back(message, tribe=tribe_name):
         call_tribe(message.chat.id, tribe)
 
@@ -83,8 +104,8 @@ def main_menu(chat_id):
 def tribes_menu(chat_id):
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     buttons = []
-    for t in tribes:
-        buttons.append(types.KeyboardButton(text=f'{t.name}'))
+    for tribe in tribes:
+        buttons.append(types.KeyboardButton(text=f'{tribe.name}'))
     markup.add(*buttons)
     buttons.append(types.KeyboardButton(text='Main menu'))
     bot.send_message(chat_id, 'Choose a tribe:', reply_markup=markup)
