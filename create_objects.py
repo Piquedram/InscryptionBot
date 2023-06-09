@@ -1,4 +1,4 @@
-from models import *
+from models import Tribe, Sigil, Card, session
 
 
 def create_tribe(name):

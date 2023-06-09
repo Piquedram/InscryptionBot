@@ -17,6 +17,8 @@ sigils = session.query(Sigil).all()
 @bot.message_handler(commands=['start'])
 def handle_start(message):
     bot.send_message(message.chat.id, "Welcome, Challenger. I was waiting for you.")
+    bot.send_message(message.chat.id, "You can simply send card, tribe or sigil name to me and I'll give you all the "
+                                      "information I have about it. Or you can try my buttons.")
     main_menu(message.chat.id)
 
 
@@ -28,6 +30,11 @@ def handle_back(message):
 @bot.message_handler(func=lambda message: message.text == 'Tribes')
 def handle_back(message):
     tribes_menu(message.chat.id)
+
+
+@bot.message_handler(func=lambda message: message.text == 'Sigils')
+def handle_back(message):
+    sigils_menu(message.chat.id)
 
 
 @bot.message_handler(func=lambda message: message.text in [card.name for card in cards])
@@ -51,7 +58,7 @@ def send_card_info(message, card_name):
     if card.grown:
         response += f'Grown: /{card.grown.name}\n'
     if card.fledgling:
-        response += f'Fledgling: {card.fledgling[0].name}\n'
+        response += f'Fledgling: /{card.fledgling[0].name}\n'
     if card.traits:
         response += f'Traits: {card.traits}\n'
     if card.tribes:
@@ -67,17 +74,11 @@ def send_card_info(message, card_name):
         if len(card.sigils) > 1:
             response += f"Sigils: "
             for sigil in card.sigils:
-                response += f"{sigil.name}, "
+                response += f"/{sigil.name}, "
             response = response[:-2]
         else:
-            response += f'Sigil: {card.sigils[0].name}'
+            response += f'Sigil: /{card.sigils[0].name}'
     bot.send_message(chat_id=message.chat.id, text=response)
-
-
-@bot.message_handler(func=lambda message: message.text in [card.name for card in cards])
-def card_info(message):
-    card_name = message.text
-    send_card_info(message, card_name)
 
 
 @bot.message_handler(func=lambda message: message.text in [tribe.name for tribe in tribes])
@@ -93,28 +94,49 @@ def slash_tribe_cards(message):
 
 
 def send_tribe_cards(message, tribe_name):
-    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
-    buttons = []
     tribe = next(tribe for tribe in tribes if tribe.name == tribe_name)
     tribe_cards = session.query(Card).join(Card.tribes).filter(Tribe.id == tribe.id).all()
+    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    buttons = []
     for card in tribe_cards:
         buttons.append(types.KeyboardButton(text=f'{card.name}'))
     buttons.append(types.KeyboardButton(text='Main menu'))
     markup.add(*buttons)
-    bot.send_message(message.chat.id, 'Choose a card:', reply_markup=markup)
+    bot.send_message(message.chat.id, f'Cards in {tribe.name}:', reply_markup=markup)
 
-'''
-@bot.message_handler(func=lambda message: message.text == 'Sigils')
-def handle_back(message):
-    sigils_menu(message.chat.id)
-'''
+
+@bot.message_handler(func=lambda message: message.text in [sigil.name for sigil in sigils])
+def sigil_cards(message):
+    sigil_name = message.text
+    send_sigil_cards(message, sigil_name)
+
+
+@bot.message_handler(func=lambda message: message.text in [f'/{sigil.name}' for sigil in sigils])
+def slash_sigil_cards(message):
+    sigil_name = message.text[1:]
+    send_sigil_cards(message, sigil_name)
+
+
+def send_sigil_cards(message, sigil_name):
+    sigil = next(sigil for sigil in sigils if sigil.name == sigil_name)
+    msg = f'{sigil.name} - {sigil.description}'
+    bot.send_message(message.chat.id, msg)
+    sigil_cards = session.query(Card).join(Card.sigils).filter(Sigil.id == sigil.id).all()
+    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    buttons = []
+    for card in sigil_cards:
+        buttons.append(types.KeyboardButton(text=f'{card.name}'))
+    buttons.append(types.KeyboardButton(text='Main menu'))
+    markup.add(*buttons)
+    bot.send_message(message.chat.id, f'Cards with {sigil.name}:', reply_markup=markup)
+
 
 def main_menu(chat_id):
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     buttons = [types.KeyboardButton(text='Tribes'),
                types.KeyboardButton(text='Sigils')]
     markup.add(*buttons)
-    bot.send_message(chat_id, 'Choose an option:', reply_markup=markup)
+    bot.send_message(chat_id, 'My buttons:', reply_markup=markup)
 
 
 def tribes_menu(chat_id):
@@ -125,6 +147,16 @@ def tribes_menu(chat_id):
     markup.add(*buttons)
     buttons.append(types.KeyboardButton(text='Main menu'))
     bot.send_message(chat_id, 'Choose a tribe:', reply_markup=markup)
+
+
+def sigils_menu(chat_id):
+    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    buttons = []
+    for sigil in sigils:
+        buttons.append(types.KeyboardButton(text=f'{sigil.name}'))
+    markup.add(*buttons)
+    buttons.append(types.KeyboardButton(text='Main menu'))
+    bot.send_message(chat_id, 'Pick a sigil:', reply_markup=markup)
 
 
 bot.polling()
