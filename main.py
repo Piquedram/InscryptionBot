@@ -145,8 +145,8 @@ def tribes_menu(chat_id):
     buttons = []
     for tribe in tribes:
         buttons.append(types.KeyboardButton(text=f'{tribe.name}'))
-    markup.add(*buttons)
     buttons.append(types.KeyboardButton(text='Main menu'))
+    markup.add(*buttons)
     bot.send_message(chat_id, 'Choose a tribe:', reply_markup=markup)
 
 
@@ -155,9 +155,16 @@ def sigils_menu(chat_id):
     buttons = []
     for sigil in sigils:
         buttons.append(types.KeyboardButton(text=f'{sigil.name}'))
-    markup.add(*buttons)
     buttons.append(types.KeyboardButton(text='Main menu'))
+    markup.add(*buttons)
     bot.send_message(chat_id, 'Pick a sigil:', reply_markup=markup)
+
+
+@bot.message_handler(func=lambda message: message.text == '/Ant')
+def handle_start(message):
+    bot.send_message(message.chat.id, "Ants is a Special Behaviour, representing the Power of certain cards. "
+                                      "A card with this trait has Power equal to the number of ants on their "
+                                      "side of the board.")
 
 
 bot.polling()
