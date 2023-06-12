@@ -37,6 +37,11 @@ def handle_back(message):
     sigils_menu(message.chat.id)
 
 
+@bot.message_handler(func=lambda message: message.text == 'Find Card via stats')
+def handle_back(message):
+    find_menu(message.chat.id)
+
+
 @bot.message_handler(func=lambda message: message.text in [card.name for card in cards])
 def card_info(message):
     card_name = message.text
@@ -102,15 +107,6 @@ def send_tribe_cards(message, tribe_name):
     bot.send_message(message.chat.id, msg)
 
 
-def send_sigil_cards(message, sigil_name):
-    sigil = next(sigil for sigil in sigils if sigil.name == sigil_name)
-    msg = f'{sigil.name} - {sigil.description}\n\nCards with {sigil.name}:\n'
-    cards_with_sigil = session.query(Card).join(Card.sigils).filter(Sigil.id == sigil.id).all()
-    for card in cards_with_sigil:
-        msg += f'/{card.name}\n'
-    bot.send_message(message.chat.id, msg)
-
-
 @bot.message_handler(func=lambda message: message.text in [sigil.name for sigil in sigils])
 def sigil_cards(message):
     sigil_name = message.text
@@ -132,12 +128,59 @@ def send_sigil_cards(message, sigil_name):
     bot.send_message(message.chat.id, msg)
 
 
+@bot.message_handler(func=lambda message: message.text[0] == '⚔')
+def handle_back(message):
+    find_by_power(message)
+
+
+def find_by_power(message):
+    power = len(message.text) // 2
+    if power < 3:
+        founded_cards = [card.name for card in cards if card.power == power]
+        msg = f'Cards with power {power}:\n\n'
+    else:
+        founded_cards = [card.name for card in cards if card.power >= power]
+        msg = f'Cards with power {power}+:\n\n'
+    for name in founded_cards:
+        msg += f'/{name}\n'
+    bot.send_message(message.chat.id, msg)
+
+
+@bot.message_handler(func=lambda message: message.text[0] == '❤')
+def handle_back(message):
+    find_by_health(message)
+
+
+def find_by_health(message):
+    health = len(message.text) // 2
+    if health < 3:
+        founded_cards = [card.name for card in cards if card.health == health]
+        msg = f'Cards with health {health}:\n\n'
+    else:
+        founded_cards = [card.name for card in cards if card.health >= health]
+        msg = f'Cards with health {health}+:\n\n'
+    for name in founded_cards:
+        msg += f'/{name}\n'
+    bot.send_message(message.chat.id, msg)
+
+
 def main_menu(chat_id):
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     buttons = [types.KeyboardButton(text='Tribes'),
-               types.KeyboardButton(text='Sigils')]
+               types.KeyboardButton(text='Sigils'),
+               types.KeyboardButton(text='Find Card via stats')]
     markup.add(*buttons)
     bot.send_message(chat_id, 'My buttons:', reply_markup=markup)
+
+
+def find_menu(chat_id):
+    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    buttons = [types.KeyboardButton(text='Power'),
+               types.KeyboardButton(text='Health'),
+               types.KeyboardButton(text='Cost'),
+               types.KeyboardButton(text='Main menu')]
+    markup.add(*buttons)
+    bot.send_message(chat_id, 'Choose stat:', reply_markup=markup)
 
 
 def tribes_menu(chat_id):
