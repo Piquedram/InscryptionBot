@@ -42,6 +42,44 @@ def handle_back(message):
     find_menu(message.chat.id)
 
 
+@bot.message_handler(func=lambda message: message.text == 'No Power')
+def handle_back(message):
+    find_by_power(message)
+
+
+@bot.message_handler(func=lambda message: message.text == 'No Health')
+def handle_back(message):
+    find_by_health(message)
+
+
+@bot.message_handler(func=lambda message: message.text == 'Power')
+def power_buttons(message):
+    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    buttons = [types.KeyboardButton(text='No Power'),
+               types.KeyboardButton(text='⚔'),
+               types.KeyboardButton(text='⚔⚔'),
+               types.KeyboardButton(text='⚔⚔⚔'),
+               types.KeyboardButton(text='⚔⚔⚔⚔'),
+               types.KeyboardButton(text='⚔⚔⚔⚔⚔+'),
+               types.KeyboardButton(text='Main menu')]
+    markup.add(*buttons)
+    bot.send_message(message.chat.id, 'Press key for correct search.', reply_markup=markup)
+
+
+@bot.message_handler(func=lambda message: message.text == 'Health')
+def power_buttons(message):
+    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    buttons = [types.KeyboardButton(text='No Health'),
+               types.KeyboardButton(text='❤'),
+               types.KeyboardButton(text='❤❤'),
+               types.KeyboardButton(text='❤❤❤'),
+               types.KeyboardButton(text='❤❤❤❤'),
+               types.KeyboardButton(text='❤❤❤❤❤+'),
+               types.KeyboardButton(text='Main menu')]
+    markup.add(*buttons)
+    bot.send_message(message.chat.id, 'Press key for correct search.', reply_markup=markup)
+
+
 @bot.message_handler(func=lambda message: message.text in [card.name for card in cards])
 def card_info(message):
     card_name = message.text
@@ -134,13 +172,15 @@ def handle_back(message):
 
 
 def find_by_power(message):
-    power = len(message.text) // 2
-    if power < 3:
+    power = 0
+    if message.text[0] == '⚔':
+        power = len(message.text)
+    if message.text[-1] != '+':
         founded_cards = [card.name for card in cards if card.power == power]
-        msg = f'Cards with power {power}:\n\n'
     else:
+        power -= 1
         founded_cards = [card.name for card in cards if card.power >= power]
-        msg = f'Cards with power {power}+:\n\n'
+    msg = f'Cards with {message.text}:\n\n'
     for name in founded_cards:
         msg += f'/{name}\n'
     bot.send_message(message.chat.id, msg)
@@ -152,13 +192,15 @@ def handle_back(message):
 
 
 def find_by_health(message):
-    health = len(message.text) // 2
-    if health < 3:
+    health = 0
+    if message.text[0] == '❤':
+        health = len(message.text)
+    if message.text[-1] != '+':
         founded_cards = [card.name for card in cards if card.health == health]
-        msg = f'Cards with health {health}:\n\n'
     else:
+        health -= 1
         founded_cards = [card.name for card in cards if card.health >= health]
-        msg = f'Cards with health {health}+:\n\n'
+    msg = f'Cards with {message.text}:\n\n'
     for name in founded_cards:
         msg += f'/{name}\n'
     bot.send_message(message.chat.id, msg)
