@@ -67,7 +67,7 @@ def power_buttons(message):
 
 
 @bot.message_handler(func=lambda message: message.text == 'Health')
-def power_buttons(message):
+def health_buttons(message):
     markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
     buttons = [types.KeyboardButton(text='No Health'),
                types.KeyboardButton(text='❤'),
@@ -78,6 +78,21 @@ def power_buttons(message):
                types.KeyboardButton(text='Main menu')]
     markup.add(*buttons)
     bot.send_message(message.chat.id, 'Press key for correct search.', reply_markup=markup)
+
+
+@bot.message_handler(func=lambda message: message.text == 'Cost')
+def cost_buttons(message):
+    markup = types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True)
+    buttons = [types.KeyboardButton(text='🩸'),
+               types.KeyboardButton(text='🦴🦴'),
+               types.KeyboardButton(text='🩸🩸'),
+               types.KeyboardButton(text='🦴🦴🦴🦴'),
+               types.KeyboardButton(text='🩸🩸🩸+'),
+               types.KeyboardButton(text='🦴🦴🦴🦴🦴+'),
+               types.KeyboardButton(text='No Cost'),
+               types.KeyboardButton(text='Main menu')]
+    markup.add(*buttons)
+    bot.send_message(message.chat.id, 'Click the key or send cost with emojis (you can add +)', reply_markup=markup)
 
 
 @bot.message_handler(func=lambda message: message.text in [card.name for card in cards])
@@ -200,6 +215,41 @@ def find_by_health(message):
     else:
         health -= 1
         founded_cards = [card.name for card in cards if card.health >= health]
+    msg = f'Cards with {message.text}:\n\n'
+    for name in founded_cards:
+        msg += f'/{name}\n'
+    bot.send_message(message.chat.id, msg)
+
+
+@bot.message_handler(func=lambda message: message.text[0] == '🦴')
+def handle_back(message):
+    find_by_cost(message)
+
+
+@bot.message_handler(func=lambda message: message.text[0] == '🩸')
+def handle_back(message):
+    find_by_cost(message)
+
+
+@bot.message_handler(func=lambda message: message.text == 'No Cost')
+def handle_back(message):
+    find_by_cost(message)
+
+
+def find_by_cost(message):
+    cost = len(message.text)
+    if message.text == 'No Cost':
+        cost = 0
+        founded_cards = [card.name for card in cards if card.cost == cost]
+    if message.text[-1] == '+':
+        cost -= 1
+        filtered_cards = [card for card in cards if card.cost >= cost]
+    else:
+        filtered_cards = [card for card in cards if card.cost == cost]
+    if message.text[0] == '🩸':
+        founded_cards = [card.name for card in filtered_cards if card.cost_type == 'blood']
+    if message.text[0] == '🦴':
+        founded_cards = [card.name for card in filtered_cards if card.cost_type == 'bones']
     msg = f'Cards with {message.text}:\n\n'
     for name in founded_cards:
         msg += f'/{name}\n'
