@@ -95,15 +95,15 @@ create_card(
 
 '''
 create_card(
-    name='Rattler',
-    cost=6,
-    cost_type='bones',
-    power=3,
-    health=1,
-    traits=None,
+    name='Glitched_Card',
+    cost=0,
+    cost_type=None,
+    power=0,
+    health=0,
+    traits='/Random_Card',
     grown_id=None,
-    image='images/Rattler.webp',
-    tribe_names=['Reptile', ],
+    image='images/Glitched_Card.webp',
+    tribe_names=None,
     sigil_names=None
 )
 '''
