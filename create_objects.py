@@ -76,6 +76,7 @@ create_sigil("Worthy_Sacrifice", "Cards bearing this sigil count as 3 Blood rath
 create_sigil("Airborne", "A card bearing this sigil will strike an opponent directly, even if there is a creature opposing it.")
 create_sigil("Touch_of_Death", "When a card bearing this sigil damages another creature, that creature perishes.")
 create_sigil("Stinky", "The creature opposing a card bearing this sigil loses 1 Power.")
+create_sigil("Frozen_Away", "When a card bearing this sigil perishes, the creature inside is released in its place. If a card that doesn't naturally have Frozen Away somehow gains it, an /Opossum is created by default.")
 '''
 
 '''
@@ -95,15 +96,15 @@ create_card(
 
 '''
 create_card(
-    name='Glitched_Card',
+    name='The_Smoke',
     cost=0,
     cost_type=None,
     power=0,
-    health=0,
-    traits='/Random_Card',
+    health=1,
+    traits=None,
     grown_id=None,
-    image='images/Glitched_Card.webp',
+    image='images/The_Smoke.webp',
     tribe_names=None,
-    sigil_names=None
+    sigil_names=['Bone_King', ]
 )
 '''
