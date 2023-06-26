@@ -302,4 +302,36 @@ def handle_start(message):
                                       "side of the board.")
 
 
+@bot.message_handler(func=lambda message: message.text == '/Random_Card')
+def handle_start(message):
+    bot.send_message(message.chat.id, "While not in your hand or on the board the entire card image appears to be "
+                                      "static. Upon drawing this card, it is temporarily replaced with a random card "
+                                      "available from card choice nodes until the end of battle. You cannot add sigils "
+                                      "to it, nor upgrade it through a Campfire.")
+
+
+@bot.message_handler(func=lambda message: message.text == '/Ouroboros_trait')
+def handle_start(message):
+    bot.send_message(message.chat.id, "Every time Ouroboros dies, it returns to your hand with +1 Power and +1 Health. "
+                                      "It will keep that stat boost throughout the entire game, even across chapters.")
+
+
+@bot.message_handler(func=lambda message: message.text == '/Satisfies_Ring_Trial')
+def handle_start(message):
+    bot.send_message(message.chat.id, "When choosing a trial, if you choose the Trial of the Ring, you will pass if "
+                                      "you have a Ring on your hand. If you do not have a Ring yet, 3 cards will be "
+                                      "drawn from your main deck. You will pass if the Ouroboros or the Ring Worm is "
+                                      "drawn.")
+
+
+@bot.message_handler(func=lambda message: message.text == '/Kills_Survivors')
+def handle_start(message):
+    bot.send_message(message.chat.id, "If the Ring Worm, Adder, or Long Elk is eaten, the survivors will be poisoned. "
+                                      "They will be absent from all future campfires during the rest of the run, "
+                                      "allowing one to achieve the maximum of four upgrades at no risk. Using a Custom "
+                                      "Deathcard with Touch of Death or transferring the Sigil to another card and "
+                                      "allowing it to be eaten will not result in the survivors' deaths. However, in "
+                                      "Kaycee's Mod, any card containing the Touch of Death sigil will poison the "
+                                      "survivors.")
+
 bot.polling()
