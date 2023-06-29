@@ -183,7 +183,12 @@ def send_sigil_cards(message, sigil_name):
 
 @bot.message_handler(func=lambda message: message.text[0] == '⚔')
 def handle_back(message):
-    find_by_power(message)
+    if len(message.text) <= 10:
+        for symbol in message.text[:-1]:
+            if symbol != '⚔':
+                return True
+        if message.text[-1] == '⚔' or message.text[-1] == '+':
+            find_by_power(message)
 
 
 def find_by_power(message):
@@ -203,7 +208,12 @@ def find_by_power(message):
 
 @bot.message_handler(func=lambda message: message.text[0] == '❤')
 def handle_back(message):
-    find_by_health(message)
+    if len(message.text) <= 10:
+        for symbol in message.text[:-1]:
+            if symbol != '❤':
+                return True
+        if message.text[-1] == '❤' or message.text[-1] == '+':
+            find_by_health(message)
 
 
 def find_by_health(message):
@@ -223,12 +233,22 @@ def find_by_health(message):
 
 @bot.message_handler(func=lambda message: message.text[0] == '🦴')
 def handle_back(message):
-    find_by_cost(message)
+    if len(message.text) <= 20:
+        for symbol in message.text[:-1]:
+            if symbol != '🦴':
+                return True
+        if message.text[-1] == '🦴' or message.text[-1] == '+':
+            find_by_cost(message)
 
 
 @bot.message_handler(func=lambda message: message.text[0] == '🩸')
 def handle_back(message):
-    find_by_cost(message)
+    if len(message.text) <= 10:
+        for symbol in message.text[:-1]:
+            if symbol != '🩸':
+                return True
+        if message.text[-1] == '🩸' or message.text[-1] == '+':
+            find_by_cost(message)
 
 
 @bot.message_handler(func=lambda message: message.text == 'No Cost')
