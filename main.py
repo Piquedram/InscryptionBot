@@ -3,7 +3,7 @@ from telebot import types
 
 
 from config import token
-from models import session, Tribe, Sigil, Card
+from models import session, Tribe, Sigil, Card, card_tribe, card_sigil
 
 
 bot = telebot.TeleBot(token)
@@ -12,6 +12,8 @@ bot = telebot.TeleBot(token)
 cards = session.query(Card).all()
 tribes = session.query(Tribe).all()
 sigils = session.query(Sigil).all()
+card_tribe = session.query(card_tribe).all()
+card_sigil = session.query(card_sigil).all()
 
 
 @bot.message_handler(commands=['start'])
@@ -154,7 +156,15 @@ def slash_tribe_cards(message):
 def send_tribe_cards(message, tribe_name):
     tribe = next(tribe for tribe in tribes if tribe.name == tribe_name)
     msg = f'Cards in {tribe.name}:\n'
-    cards_in_tribe = session.query(Card).join(Card.tribes).filter(Tribe.id == tribe.id).all()
+    card_ids = []
+    for line in card_tribe:
+        if line.tribe_id == tribe.id:
+            card_ids.append(line.card_id)
+    cards_in_tribe = []
+    for cid in card_ids:
+        for card in cards:
+            if card.id == cid:
+                cards_in_tribe.append(card)
     for card in cards_in_tribe:
         msg += f'/{card.name}\n'
     bot.send_message(message.chat.id, msg)
@@ -175,7 +185,15 @@ def slash_sigil_cards(message):
 def send_sigil_cards(message, sigil_name):
     sigil = next(sigil for sigil in sigils if sigil.name == sigil_name)
     msg = f'{sigil.name} - {sigil.description}\n\nCards with {sigil.name}:\n'
-    cards_with_sigil = session.query(Card).join(Card.sigils).filter(Sigil.id == sigil.id).all()
+    card_ids = []
+    for line in card_sigil:
+        if line.sigil_id == sigil.id:
+            card_ids.append(line.card_id)
+    cards_with_sigil = []
+    for cid in card_ids:
+        for card in cards:
+            if card.id == cid:
+                cards_with_sigil.append(card)
     for card in cards_with_sigil:
         msg += f'/{card.name}\n'
     bot.send_message(message.chat.id, msg)
