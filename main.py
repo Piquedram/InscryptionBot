@@ -1,19 +1,49 @@
+import threading
+
 import telebot
 from telebot import types
+from sqlalchemy.orm import sessionmaker, joinedload
 
 
 from config import token
-from models import session, Tribe, Sigil, Card, card_tribe, card_sigil
+from models import Tribe, Sigil, Card, card_tribe, card_sigil, engine
 
 
 bot = telebot.TeleBot(token)
 
 
-cards = session.query(Card).all()
-tribes = session.query(Tribe).all()
-sigils = session.query(Sigil).all()
-card_tribe = session.query(card_tribe).all()
-card_sigil = session.query(card_sigil).all()
+def worker():
+    local_sessionmaker = sessionmaker(bind=engine)
+    local_session = local_sessionmaker()
+    global cards
+    cards = local_session.query(Card).options(joinedload(Card.grown), joinedload(Card.fledgling), joinedload(Card.tribes), joinedload(Card.sigils)).all()
+    local_session.close()
+
+
+thread = threading.Thread(target=worker)
+thread.start()
+thread.join()
+
+
+local_sessionmaker = sessionmaker(bind=engine)
+local_session = local_sessionmaker()
+tribes = local_session.query(Tribe).all()
+local_session.close()
+
+local_sessionmaker = sessionmaker(bind=engine)
+local_session = local_sessionmaker()
+sigils = local_session.query(Sigil).all()
+local_session.close()
+
+local_sessionmaker = sessionmaker(bind=engine)
+local_session = local_sessionmaker()
+card_tribe = local_session.query(card_tribe).all()
+local_session.close()
+
+local_sessionmaker = sessionmaker(bind=engine)
+local_session = local_sessionmaker()
+card_sigil = local_session.query(card_sigil).all()
+local_session.close()
 
 
 @bot.message_handler(commands=['start'])
