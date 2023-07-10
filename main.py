@@ -144,7 +144,7 @@ def send_card_info(message, card_name):
     image_path = card.image
     with open(image_path, 'rb') as photo:
         bot.send_photo(chat_id=message.chat.id, photo=photo)
-    response = f'Name: {card.name}\n'
+    response = f'Name: {card.name.replace("_", " ")}\n'
     if card.grown:
         response += f'Grown: /{card.grown.name}\n'
     if card.fledgling:
@@ -214,7 +214,7 @@ def slash_sigil_cards(message):
 
 def send_sigil_cards(message, sigil_name):
     sigil = next(sigil for sigil in sigils if sigil.name == sigil_name)
-    msg = f'{sigil.name} - {sigil.description}\n\nCards with {sigil.name}:\n'
+    msg = f'{sigil.name.replace("_", " ")} - {sigil.description}\n\nCards with {sigil.name.replace("_", " ")}:\n'
     card_ids = []
     for line in card_sigil:
         if line.sigil_id == sigil.id:
@@ -401,6 +401,22 @@ def trait(message):
                                       "allowing it to be eaten will not result in the survivors' deaths. However, in "
                                       "Kaycee's Mod, any card containing the Touch of Death sigil will poison the "
                                       "survivors.")
+
+
+@bot.message_handler(func=lambda message: message.text == '/Chime_Keeper')
+def trait(message):
+    bot.send_message(message.chat.id, "If a card bearing the Chime_trait is struck, a card bearing this Trait will "
+                                      "strike the offending card. If a Chime on the opposing side was struck, all "
+                                      "Chime Keepers will still retaliate against the offender. This includes "
+                                      "themselves.")
+
+
+@bot.message_handler(func=lambda message: message.text == '/Chime_trait')
+def trait(message):
+    bot.send_message(message.chat.id, "When the card is attacked, any /The_Daus on the board (and only /The_Daus, "
+                                      "even if the /Bellist sigil is transferred) will attack the opposing creature. "
+                                      "If a Chime on the opposing side was struck, all Chime Keepers will still "
+                                      "retaliate against the offender. This includes themselves.")
 
 
 bot.polling()
